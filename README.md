@@ -1,1 +1,3 @@
-# big_data_analysis_with_scala_and_spark
+# Big Data Analysis with Scala and Spark
+
+Solutions of exercises of Coursera's course.
