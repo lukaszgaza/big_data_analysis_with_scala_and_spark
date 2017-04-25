@@ -6,11 +6,11 @@ Exercise: Wikipedia
 -----------------------------
 In this assignment, you will get to know Spark by exploring full-text Wikipedia articles.
 
-Gauging how popular a programming language is important for companies judging whether or not they should adopt an emerging programming language. For that reason, industry analyst firm RedMonk has bi-annually computed a ranking of programming language popularity using a variety of data sources, typically from websites like GitHub and StackOverflow. See their top-20 ranking for June 2016 as an example.
+Gauging how popular a programming language is important for companies judging whether or not they should adopt an emerging programming language. For that reason, industry analyst firm RedMonk has bi-annually computed a ranking of programming language popularity using a variety of data sources, typically from websites like GitHub and StackOverflow. See their [top-20 ranking for June 2016](http://redmonk.com/sogrady/2016/07/20/language-rankings-6-16/) as an example.
 
 In this assignment, we'll use our full-text data from Wikipedia to produce a rudimentary metric of how popular a programming language is, in an effort to see if our Wikipedia-based rankings bear any relation to the popular Red Monk rankings.
 
-You'll complete this exercise on just one node (your laptop), but you can also head over to Databricks Community Edition to experiment with your code on a "micro-cluster" for free.
+You'll complete this exercise on just one node (your laptop), but you can also head over to [Databricks Community Edition](https://community.cloud.databricks.com/) to experiment with your code on a "micro-cluster" for free.
 
 ### Set up Spark
 
@@ -34,7 +34,7 @@ Create an 𝚁𝙳𝙳 (by implementing 𝚟𝚊𝚕 𝚠𝚒𝚔𝚒𝚁𝚍�
 
 We will use a simple metric for determining the popularity of a programming language: the number of Wikipedia articles that mention the language at least once.
 
-Rank languages attempt #1: rankLangs
+#### Rank languages attempt #1: rankLangs
 
 ##### Computing 𝚘𝚌𝚌𝚞𝚛𝚛𝚎𝚗𝚌𝚎𝚜𝙾𝚏𝙻𝚊𝚗𝚐
 Start by implementing a helper method 𝚘𝚌𝚌𝚞𝚛𝚛𝚎𝚗𝚌𝚎𝚜𝙾𝚏𝙻𝚊𝚗𝚐 which computes the number of articles in an 𝚁𝙳𝙳 of type 𝚁𝙳𝙳[𝚆𝚒𝚔𝚒𝚙𝚎𝚍𝚒𝚊𝙰𝚛𝚝𝚒𝚌𝚕𝚎𝚜] that mention the given language at least once. For the sake of simplicity we check that it least one word (delimited by spaces) of the article text is equal to the given language.
@@ -52,7 +52,7 @@ Hint: You might want to use methods 𝚏𝚕𝚊𝚝𝙼𝚊𝚙 and 𝚐𝚛�
 
 Pay attention to roughly how long it takes to run this part! (It should take tens of seconds.)
 
-Rank languages attempt #2: rankLangsUsingIndex
+#### Rank languages attempt #2: rankLangsUsingIndex
 
 ##### Compute an inverted index
 
@@ -73,7 +73,7 @@ Hint: method 𝚖𝚊𝚙𝚅𝚊𝚕𝚞𝚎𝚜 on 𝙿𝚊𝚒𝚛𝚁𝙳�
 
 Can you notice a performance improvement over attempt #2? Why?
 
-Rank languages attempt #3: rankLangsReduceByKey
+#### Rank languages attempt #3: rankLangsReduceByKey
 
 In the case where the inverted index from above is only used for computing the ranking and for no other task (full-text search, say), it is more efficient to use the 𝚛𝚎𝚍𝚞𝚌𝚎𝙱𝚢𝙺𝚎𝚢 method to compute the ranking directly, without first computing an inverted index. Note that the 𝚛𝚎𝚍𝚞𝚌𝚎𝙱𝚢𝙺𝚎𝚢 method is only defined for RDDs containing pairs (each pair is interpreted as a key-value pair).
 
