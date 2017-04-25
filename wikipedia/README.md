@@ -4,6 +4,11 @@
 -----------------------------
 Exercise: Wikipedia
 -----------------------------
+
+For this assignment, you also need to download the data (133 MB):
+
+[http://alaska.epfl.ch/~dockermoocs/bigdata/wikipedia.dat](http://alaska.epfl.ch/~dockermoocs/bigdata/wikipedia.dat)
+
 In this assignment, you will get to know Spark by exploring full-text Wikipedia articles.
 
 Gauging how popular a programming language is important for companies judging whether or not they should adopt an emerging programming language. For that reason, industry analyst firm RedMonk has bi-annually computed a ranking of programming language popularity using a variety of data sources, typically from websites like GitHub and StackOverflow. See their [top-20 ranking for June 2016](http://redmonk.com/sogrady/2016/07/20/language-rankings-6-16/) as an example.
