@@ -28,4 +28,17 @@ class TimeUsageSuite extends FunSuite with BeforeAndAfterAll {
     val schema = new StructType()
     assert(TimeUsage.dfSchema(columns) === schema)
   }
+
+  test("should create Row based on list of fields") {
+    val fields = List("one", "two", "three")
+    val row = Row("one", "two", "three")
+
+    assert(TimeUsage.row(fields) === row)
+  }
+
+  test("should create empty row from empty line") {
+    val fields = List.empty
+    val row = Row()
+    assert(TimeUsage.row(fields) === row)
+  }
 }
