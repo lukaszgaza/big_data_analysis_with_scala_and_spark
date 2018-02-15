@@ -63,7 +63,8 @@ object TimeUsage {
     * @param columnNames Column names of the DataFrame
     */
   def dfSchema(columnNames: List[String]): StructType =
-    ???
+    if (columnNames.isEmpty) new StructType()
+    else new StructType((StructField(columnNames.head, StringType) :: columnNames.tail.map(name => StructField(name, DoubleType))).toArray)
 
 
   /** @return An RDD Row compatible with the schema produced by `dfSchema`
