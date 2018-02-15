@@ -188,4 +188,19 @@ class TimeUsageSuite extends FunSuite with BeforeAndAfterAll {
     val sql = TimeUsage.timeUsageGroupedSqlQuery("df")
     assert(sql === expectedSQL)
   }
+
+  test("should generate time usage summary using Datasets") {
+    val schema = new StructType(Array(StructField("working", StringType), StructField("sex", StringType),
+      StructField("age", StringType), StructField("primaryNeeds", DoubleType), StructField("work", DoubleType),
+      StructField("other", DoubleType)))
+    val row = Row("working", "male", "active", 1.5, 0.25, 0.75)
+    val df = spark.createDataFrame(util.Arrays.asList(row), schema)
+
+    val expectedDataset = spark.createDataset(Seq(TimeUsageRow("working", "male", "active", 1.5, 0.25, 0.75)))
+
+    val ds = TimeUsage.timeUsageSummaryTyped(df)
+
+    assert(expectedDataset.count() === ds.count())
+    assert(expectedDataset.head() === ds.head())
+  }
 }
