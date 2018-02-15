@@ -89,7 +89,14 @@ object TimeUsage {
     *    “t10”, “t12”, “t13”, “t14”, “t15”, “t16” and “t18” (those which are not part of the previous groups only).
     */
   def classifiedColumns(columnNames: List[String]): (List[Column], List[Column], List[Column]) = {
-    ???
+    val PrimaryNeeds = Set("t01", "t03", "t11", "t1801", "t1803")
+    val WorkingActivities = Set("t05", "t1805")
+    val OtherActivities = Set("t02", "t04", "t06", "t07", "t08", "t09", "t10", "t12", "t13", "t14", "t15", "t16", "t18")
+
+    val (primary, rest) = columnNames.partition(PrimaryNeeds.contains)
+    val (working, other) = rest.partition(WorkingActivities.contains)
+
+    (primary.map(new Column(_)), working.map(new Column(_)), other.map(new Column(_)))
   }
 
   /** @return a projection of the initial DataFrame such that all columns containing hours spent on primary needs
