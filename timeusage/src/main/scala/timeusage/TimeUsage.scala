@@ -67,14 +67,15 @@ object TimeUsage {
     */
   def dfSchema(columnNames: List[String]): StructType =
     if (columnNames.isEmpty) new StructType()
-    else new StructType((StructField(columnNames.head, StringType) :: columnNames.tail.map(name => StructField(name, DoubleType))).toArray)
+    else new StructType((StructField(columnNames.head, StringType, false) :: columnNames.tail.map(name => StructField(name, DoubleType, false))).toArray)
 
 
   /** @return An RDD Row compatible with the schema produced by `dfSchema`
     * @param line Raw fields
     */
   def row(line: List[String]): Row =
-    Row.fromSeq(line)
+    if (line.isEmpty) Row()
+    else Row(line.head.toString :: line.tail.map(_.toDouble):_*)
 
   /** @return The initial data frame columns partitioned in three groups: primary needs (sleeping, eating, etc.),
     *         work and other (leisure activities)
@@ -199,9 +200,11 @@ object TimeUsage {
     *
     * Finally, the resulting DataFrame should be sorted by working status, sex and age.
     */
-  def timeUsageGrouped(summed: DataFrame): DataFrame = {
-    ???
-  }
+  def timeUsageGrouped(summed: DataFrame): DataFrame =
+    summed
+      .groupBy($"working", $"sex", $"age")
+      .agg(round(avg($"primaryNeeds"), 1), round(avg($"work"), 1), round(avg($"other"), 1))
+      .sort("working", "sex", "age")
 
   /**
     * @return Same as `timeUsageGrouped`, but using a plain SQL query instead
@@ -217,7 +220,11 @@ object TimeUsage {
     * @param viewName Name of the SQL view to use
     */
   def timeUsageGroupedSqlQuery(viewName: String): String =
-    ???
+    s"""SELECT working, sex, age, ROUND(AVG(primaryNeeds), 1), ROUND(AVG(work), 1), ROUND(AVG(other), 1)
+       |FROM ${viewName}
+       |GROUP BY working, sex, age
+       |ORDER BY working, sex, age
+     """.stripMargin
 
   /**
     * @return A `Dataset[TimeUsageRow]` from the “untyped” `DataFrame`

@@ -22,8 +22,8 @@ class TimeUsageSuite extends FunSuite with BeforeAndAfterAll {
 
   test("should correctly generate schema") {
     val columns = List("stringCol", "numericCol1", "numericCol2", "numericCol3")
-    val schema = new StructType(Array(StructField("stringCol", StringType), StructField("numericCol1", DoubleType),
-      StructField("numericCol2", DoubleType), StructField("numericCol3", DoubleType)))
+    val schema = new StructType(Array(StructField("stringCol", StringType, false), StructField("numericCol1", DoubleType, false),
+      StructField("numericCol2", DoubleType, false), StructField("numericCol3", DoubleType, false)))
 
     assert(TimeUsage.dfSchema(columns) === schema)
   }
@@ -35,8 +35,8 @@ class TimeUsageSuite extends FunSuite with BeforeAndAfterAll {
   }
 
   test("should create Row based on list of fields") {
-    val fields = List("one", "two", "three")
-    val row = Row("one", "two", "three")
+    val fields = List("one", "2", "3")
+    val row = Row("one", 2.0, 3.0)
 
     assert(TimeUsage.row(fields) === row)
   }
@@ -146,5 +146,46 @@ class TimeUsageSuite extends FunSuite with BeforeAndAfterAll {
     val summarizedDF = TimeUsage.timeUsageSummary(primaryColumns, workColumns, otherColumns, df)
 
     assert(summarizedDF.count() === 0)
+  }
+
+  test("should correctly calculate average time spent on different activities using functions on dataframes") {
+    val schema = new StructType(Array(StructField("working", StringType), StructField("sex", StringType),
+      StructField("age", StringType), StructField("primaryNeeds", DoubleType), StructField("work", DoubleType),
+      StructField("other", DoubleType)))
+    val young1 = Row("not working", "female", "young", 1.0, 2.3, 0.0)
+    val young2 = Row("working", "male", "young", 1.0, 1.5, 0.0)
+    val young3 = Row("working", "male", "young", 1.5, 1.5, 0.0)
+    val active1 = Row("working", "female", "active", 7.5, 10.1, 3.59)
+    val active2 = Row("working", "male", "active", 8.5, 9.99, 4.21)
+    val elder = Row("not working", "female", "elder", 2.3, 1.11, 1.77)
+    val rows = util.Arrays.asList(young1, young2, young3, active1, active2, elder)
+    val df = spark.createDataFrame(rows, schema)
+
+    val expectedSchema = new StructType(Array(StructField("working", StringType), StructField("sex", StringType),
+      StructField("age", StringType), StructField("primaryNeeds", DoubleType), StructField("work", DoubleType),
+      StructField("other", DoubleType)))
+    val expectedRow1 = Row("not working", "female", "elder", 2.3, 1.1, 1.8)
+    val expectedRow2 = Row("not working", "female", "young", 1.0, 2.3, 0.0)
+    val expectedRow3 = Row("working", "female", "active", 7.5, 10.1, 3.6)
+    val expectedRow4 = Row("working", "male", "active", 8.5, 10.0, 4.2)
+    val expectedRow5 = Row("working", "male", "young", 1.3, 1.5, 0.0)
+    val expectedRows = util.Arrays.asList(expectedRow1, expectedRow2, expectedRow3, expectedRow4, expectedRow5)
+    val expectedDF = spark.createDataFrame(expectedRows, expectedSchema)
+
+    val groupedDF = TimeUsage.timeUsageGrouped(df)
+    assert(groupedDF.count() === expectedDF.count())
+    assert(groupedDF.take(5) === expectedDF.take(5))
+  }
+
+  test("should correctly calculate average time spent on different activities using SQL") {
+    val expectedSQL =
+      s"""SELECT working, sex, age, ROUND(AVG(primaryNeeds), 1), ROUND(AVG(work), 1), ROUND(AVG(other), 1)
+         |FROM df
+         |GROUP BY working, sex, age
+         |ORDER BY working, sex, age
+     """.stripMargin
+
+    val sql = TimeUsage.timeUsageGroupedSqlQuery("df")
+    assert(sql === expectedSQL)
   }
 }
