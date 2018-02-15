@@ -5,6 +5,9 @@ import java.nio.file.Paths
 import org.apache.spark.sql._
 import org.apache.spark.sql.types._
 
+import scala.collection.mutable
+import scala.collection.mutable.ListBuffer
+
 /** Main class */
 object TimeUsage {
 
@@ -93,10 +96,14 @@ object TimeUsage {
     val WorkingActivities = Set("t05", "t1805")
     val OtherActivities = Set("t02", "t04", "t06", "t07", "t08", "t09", "t10", "t12", "t13", "t14", "t15", "t16", "t18")
 
-    val (primary, rest) = columnNames.partition(PrimaryNeeds.contains)
-    val (working, other) = rest.partition(WorkingActivities.contains)
+    val (primary, work, other): (List[String], List[String], List[String]) =
+      columnNames.reverse.foldLeft((List[String](), List[String](), List[String]()))((acc, name) =>
+        if (PrimaryNeeds.exists(name.startsWith(_))) (name :: acc._1, acc._2, acc._3)
+        else if (WorkingActivities.exists(name.startsWith(_))) (acc._1, name :: acc._2, acc._3)
+        else (acc._1, acc._2, name :: acc._3)
+    )
 
-    (primary.map(new Column(_)), working.map(new Column(_)), other.map(new Column(_)))
+    (primary.map(new Column(_)), work.map(new Column(_)), other.map(new Column(_)))
   }
 
   /** @return a projection of the initial DataFrame such that all columns containing hours spent on primary needs

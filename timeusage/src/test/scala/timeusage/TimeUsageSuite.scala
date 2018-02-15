@@ -38,10 +38,14 @@ class TimeUsageSuite extends FunSuite with BeforeAndAfterAll {
   }
 
   test("should correctly classify provided columns") {
-    val columns = List("t08", "t05", "t1803", "t01", "t16")
-    val classification = (List(new Column("t1803"), new Column("t01")), List(new Column("t05")),
-      List(new Column("t08"), new Column("t16")))
+    val columns = List("t080", "t050", "t18030", "t010", "t160")
+    val classification = (List(new Column("t18030"), new Column("t010")), List(new Column("t050")),
+      List(new Column("t080"), new Column("t160")))
 
     assert(TimeUsage.classifiedColumns(columns) === classification)
+  }
+
+  test("should correctly summarize user data") {
+
   }
 }
