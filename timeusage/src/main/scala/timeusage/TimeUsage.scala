@@ -249,7 +249,13 @@ object TimeUsage {
     */
   def timeUsageGroupedTyped(summed: Dataset[TimeUsageRow]): Dataset[TimeUsageRow] = {
     import org.apache.spark.sql.expressions.scalalang.typed
-    ???
+    summed
+      .groupByKey(row => (row.working, row.sex, row.age))
+      .agg(typed.avg(_.primaryNeeds), typed.avg(_.work), typed.avg(_.other))
+      .map {
+        case ((working, sex, age), primaryNeeds, work, other) => TimeUsageRow(working, sex, age, primaryNeeds, work, other)
+      }
+      .orderBy($"working", $"sex", $"age")
   }
 }
 

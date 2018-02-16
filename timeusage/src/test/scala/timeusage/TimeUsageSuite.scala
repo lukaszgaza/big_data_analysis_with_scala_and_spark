@@ -203,4 +203,27 @@ class TimeUsageSuite extends FunSuite with BeforeAndAfterAll {
     assert(expectedDataset.count() === ds.count())
     assert(expectedDataset.head() === ds.head())
   }
+
+  test("should return time usage grouped using Datasets") {
+    val row1 = TimeUsageRow("not working", "female", "young", 1.0, 2.3, 0.0)
+    val row2 = TimeUsageRow("working", "male", "young", 1.0, 1.5, 0.0)
+    val row3 = TimeUsageRow("working", "male", "young", 1.5, 1.5, 0.0)
+    val row4 = TimeUsageRow("working", "female", "active", 7.5, 10.1, 3.59)
+    val row5 = TimeUsageRow("working", "male", "active", 8.5, 9.99, 4.21)
+    val row6 = TimeUsageRow("not working", "female", "elder", 2.3, 1.11, 1.77)
+
+    val ds = spark.createDataset(Seq(row1, row2, row3, row4, row5, row6))
+
+    val expectedRow1 = TimeUsageRow("not working", "female", "elder", 2.3, 1.11, 1.77)
+    val expectedRow2 = TimeUsageRow("not working", "female", "young", 1.0, 2.3, 0.0)
+    val expectedRow3 = TimeUsageRow("working", "female", "active", 7.5, 10.1, 3.6)
+    val expectedRow4 = TimeUsageRow("working", "male", "active", 8.5, 10.0, 4.2)
+    val expectedRow5 = TimeUsageRow("working", "male", "young", 1.3, 1.5, 0.0)
+    val expectedDS = spark.createDataset(Seq(expectedRow1, expectedRow2, expectedRow3, expectedRow4, expectedRow5))
+
+    val groupedDS = TimeUsage.timeUsageGroupedTyped(ds)
+
+    assert(expectedDS.count() === groupedDS.count())
+    assert(expectedDS.head() === groupedDS.head())
+  }
 }
