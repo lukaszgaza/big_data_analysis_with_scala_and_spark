@@ -251,7 +251,11 @@ object TimeUsage {
     import org.apache.spark.sql.expressions.scalalang.typed
     summed
       .groupByKey(row => (row.working, row.sex, row.age))
-      .agg(typed.avg(_.primaryNeeds), typed.avg(_.work), typed.avg(_.other))
+      .agg(
+        round(typed.avg[TimeUsageRow](_.primaryNeeds), 1).as[Double],
+        round(typed.avg[TimeUsageRow](_.work), 1).as[Double],
+        round(typed.avg[TimeUsageRow](_.other), 1).as[Double]
+      )
       .map {
         case ((working, sex, age), primaryNeeds, work, other) => TimeUsageRow(working, sex, age, primaryNeeds, work, other)
       }

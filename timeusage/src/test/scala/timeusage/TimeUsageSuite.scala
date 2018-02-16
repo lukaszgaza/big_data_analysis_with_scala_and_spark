@@ -214,7 +214,7 @@ class TimeUsageSuite extends FunSuite with BeforeAndAfterAll {
 
     val ds = spark.createDataset(Seq(row1, row2, row3, row4, row5, row6))
 
-    val expectedRow1 = TimeUsageRow("not working", "female", "elder", 2.3, 1.11, 1.77)
+    val expectedRow1 = TimeUsageRow("not working", "female", "elder", 2.3, 1.1, 1.8)
     val expectedRow2 = TimeUsageRow("not working", "female", "young", 1.0, 2.3, 0.0)
     val expectedRow3 = TimeUsageRow("working", "female", "active", 7.5, 10.1, 3.6)
     val expectedRow4 = TimeUsageRow("working", "male", "active", 8.5, 10.0, 4.2)
